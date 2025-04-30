@@ -104,17 +104,19 @@ body {
     }
 }
 
-/* Tambahkan di css/style.css */
+
 /* Tambahkan di style.css */
 .table td:nth-child(4) {
-    white-space: normal;
-    word-wrap: break-word;
-    max-width: 300px; /* Sesuaikan sesuai kebutuhan */
-}
+    white-space: normal !important;  /* Pastikan text tidak dipaksa 1 baris */
+    word-wrap: break-word;          /* Memecah kata panjang */
+    max-width: 300px;               /* Sesuaikan lebar maksimal */
+    padding: 8px 12px !important;   /* Tambahkan padding untuk readability */
+  }
 
 /* Untuk tampilan mobile */
 @media (max-width: 768px) {
     .table td:nth-child(4) {
         max-width: 100px;
+        font-size: 14px;
     }
 }
