@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Belajar Tracker - Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+      <a class="navbar-brand" href="#">Belajar Tracker</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="#" id="logoutBtn">Logout</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container mt-4">
+    <div class="row">
+      <div class="col-md-4">
+        <div class="card mb-4">
+          <div class="card-header bg-success text-white">
+            <h5 class="mb-0">Tambah Kegiatan Belajar</h5>
+          </div>
+          <div class="card-body">
+            <form id="activityForm">
+              <div class="mb-3">
+                <label for="activityName" class="form-label">Nama Kegiatan</label>
+                <input type="text" class="form-control" id="activityName" required>
+              </div>
+              <div class="mb-3">
+                <label for="activityDuration" class="form-label">Durasi (jam)</label>
+                <input type="number" step="0.1" class="form-control" id="activityDuration" required>
+              </div>
+              <div class="mb-3">
+                <label for="activityDate" class="form-label">Tanggal</label>
+                <input type="date" class="form-control" id="activityDate" required>
+              </div>
+              <button type="submit" class="btn btn-primary w-100">Simpan</button>
+            </form>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header bg-info text-white">
+            <h5 class="mb-0">Statistik Hari Ini</h5>
+          </div>
+          <div class="card-body">
+            <div class="text-center">
+              <h3 id="todayTotal">0</h3>
+              <p class="text-muted">Jam Belajar Hari Ini</p>
+            </div>
+            <hr>
+            <div id="todayActivities">
+              <p class="text-muted text-center">Belum ada kegiatan hari ini</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-8">
+        <div class="card mb-4">
+          <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Progress Belajar</h5>
+          </div>
+          <div class="card-body">
+            <canvas id="progressChart"></canvas>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header bg-warning text-dark">
+            <h5 class="mb-0">Riwayat Kegiatan</h5>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th>Tanggal</th>
+                    <th>Kegiatan</th>
+                    <th>Durasi (jam)</th>
+                    <th>Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="activityTable">
+                  <!-- Data akan diisi oleh JavaScript -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
+  <script src="js/firebase.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/dashboard.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
