@@ -106,10 +106,18 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">Catatan Belajar Hari Ini</h5>
-                        <button class="btn btn-primary btn-sm" id="addActivityBtn">
-                            <i class="fas fa-plus me-1"></i> Tambah
-                        </button>
+                        <h5 class="mb-0">Catatan Belajar</h5> <!-- Judul diubah -->
+                        <div>
+                            <select class="form-select form-select-sm me-2" id="dateFilter" style="width: 120px; display: inline-block;">
+                                <option value="all">Semua Data</option>
+                                <option value="today">Hari Ini</option>
+                                <option value="week">Minggu Ini</option>
+                                <option value="month">Bulan Ini</option>
+                            </select>
+                            <button class="btn btn-primary btn-sm" id="addActivityBtn">
+                                <i class="fas fa-plus me-1"></i> Tambah
+                            </button>
+                        </div>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -120,7 +128,7 @@
                                         <th>Topik</th>
                                         <th>Durasi (menit)</th>
                                         <th>Catatan</th>
-                                        <th>Waktu</th>
+                                        <th>Tanggal & Waktu</th> <!-- Kolom diperjelas -->
                                         <th>Aksi</th>
                                     </tr>
                                 </thead>
@@ -133,7 +141,6 @@
                 </div>
             </div>
         </div>
-    </div>
 
     <!-- Modal Tambah Aktivitas -->
     <div class="modal fade" id="activityModal" tabindex="-1" aria-hidden="true">

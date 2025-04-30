@@ -67,77 +67,148 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Render tabel aktivitas
-    function renderActivities() {
-        activitiesBody.innerHTML = '';
-        
-        if (activities.length === 0) {
-            activitiesBody.innerHTML = `
-                <tr>
-                    <td colspan="6" class="text-center py-4 text-muted">
-                        <i class="fas fa-book-open fa-2x mb-2"></i>
-                        <p class="mb-0">Belum ada catatan belajar hari ini</p>
-                    </td>
-                </tr>
-            `;
-            return;
-        }
-        
-        // Urutkan berdasarkan waktu terbaru
-        const sortedActivities = [...activities].sort((a, b) => b.timestamp - a.timestamp);
-        
-        // Ambil hanya aktivitas hari ini
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        
-        const todayActivities = sortedActivities.filter(activity => {
-            const activityDate = new Date(activity.timestamp);
-            activityDate.setHours(0, 0, 0, 0);
-            return activityDate.getTime() === today.getTime();
-        });
-        
-        todayActivities.forEach(activity => {
-            const row = document.createElement('tr');
-            row.className = 'fade-in';
-            row.innerHTML = `
-                <td>${activity.subject}</td>
-                <td>${activity.topic}</td>
-                <td>${activity.duration}</td>
-                <td>${activity.notes || '-'}</td>
-                <td>${formatTime(activity.timestamp)}</td>
-                <td>
-                    <button class="btn btn-sm btn-outline-primary edit-activity" data-id="${activity.id}">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="btn btn-sm btn-outline-danger delete-activity" data-id="${activity.id}">
-                        <i class="fas fa-trash-alt"></i>
-                    </button>
+// Render tabel aktivitas (menampilkan SEMUA data)
+function renderActivities() {
+    activitiesBody.innerHTML = '';
+    
+    if (activities.length === 0) {
+        activitiesBody.innerHTML = `
+            <tr>
+                <td colspan="6" class="text-center py-4 text-muted">
+                    <i class="fas fa-book-open fa-2x mb-2"></i>
+                    <p class="mb-0">Belum ada catatan belajar</p> <!-- Hapus "hari ini" -->
                 </td>
-            `;
-            activitiesBody.appendChild(row);
-        });
-        
-        // Tambahkan event listener untuk tombol edit dan delete
-        document.querySelectorAll('.edit-activity').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const activityId = this.getAttribute('data-id');
-                editActivity(activityId);
-            });
-        });
-        
-        document.querySelectorAll('.delete-activity').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const activityId = this.getAttribute('data-id');
-                deleteActivity(activityId);
-            });
-        });
-        
-        // Update statistik
-        calculateTodayMinutes();
-        calculateWeekMinutes();
-        
-        // Update chart
-        updateCharts();
+            </tr>
+        `;
+        return;
     }
+    
+    // 1. HAPUS filter "hari ini" dan tampilkan semua data
+    const sortedActivities = [...activities].sort((a, b) => b.timestamp - a.timestamp);
+    
+    sortedActivities.forEach(activity => {
+        const row = document.createElement('tr');
+        row.className = 'fade-in';
+        
+        // 2. Tambahkan kolom tanggal lengkap
+        const activityDate = new Date(activity.timestamp);
+        const isToday = activityDate.setHours(0,0,0,0) === new Date().setHours(0,0,0,0);
+        
+        row.innerHTML = `
+            <td>${activity.subject}</td>
+            <td>${activity.topic} ${isToday ? '<span class="badge bg-primary ms-2">Hari Ini</span>' : ''}</td>
+            <td>${activity.duration}</td>
+            <td>${activity.notes || '-'}</td>
+            <td>
+                ${activityDate.toLocaleDateString('id-ID')} <!-- Tanggal -->
+                ${formatTime(activity.timestamp)} <!-- Waktu -->
+            </td>
+            <td>
+                <button class="btn btn-sm btn-outline-primary edit-activity" data-id="${activity.id}">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger delete-activity" data-id="${activity.id}">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            </td>
+        `;
+        activitiesBody.appendChild(row);
+    });
+    
+    // 3. Update event listeners (tetap sama)
+    document.querySelectorAll('.edit-activity').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const activityId = this.getAttribute('data-id');
+            editActivity(activityId);
+        });
+    });
+    
+    document.querySelectorAll('.delete-activity').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const activityId = this.getAttribute('data-id');
+            deleteActivity(activityId);
+        });
+    });
+    
+    // 4. Update statistik (tetap sama)
+    calculateTodayMinutes();
+    calculateWeekMinutes();
+    updateCharts();
+}
+
+
+// 1. Fungsi Filter Berdasarkan Rentang Waktu
+function filterActivities(range) {
+    const now = new Date();
+    let filtered = [];
+    
+    switch(range) {
+        case 'today':
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            filtered = activities.filter(a => new Date(a.timestamp) >= today);
+            break;
+            
+        case 'week':
+            const oneWeekAgo = new Date();
+            oneWeekAgo.setDate(now.getDate() - 7);
+            filtered = activities.filter(a => new Date(a.timestamp) >= oneWeekAgo);
+            break;
+            
+        case 'month':
+            const oneMonthAgo = new Date();
+            oneMonthAgo.setMonth(now.getMonth() - 1);
+            filtered = activities.filter(a => new Date(a.timestamp) >= oneMonthAgo);
+            break;
+            
+        default: // 'all'
+            filtered = [...activities];
+    }
+    
+    renderFilteredActivities(filtered);
+}
+
+// 2. Fungsi Render Hasil Filter
+function renderFilteredActivities(filteredActivities) {
+    activitiesBody.innerHTML = '';
+    
+    if (filteredActivities.length === 0) {
+        activitiesBody.innerHTML = `
+            <tr>
+                <td colspan="6" class="text-center py-4 text-muted">
+                    <i class="fas fa-search me-2"></i>Tidak ada data yang sesuai filter
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    filteredActivities.forEach(activity => {
+        const row = document.createElement('tr');
+        row.className = 'fade-in';
+        row.innerHTML = `
+            <td>${activity.subject}</td>
+            <td>${activity.topic}</td>
+            <td>${activity.duration}</td>
+            <td>${activity.notes || '-'}</td>
+            <td>${new Date(activity.timestamp).toLocaleDateString('id-ID')} ${formatTime(activity.timestamp)}</td>
+            <td>
+                <button class="btn btn-sm btn-outline-primary edit-activity" data-id="${activity.id}">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger delete-activity" data-id="${activity.id}">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            </td>
+        `;
+        activitiesBody.appendChild(row);
+    });
+}
+
+// 3. Event Listener untuk Dropdown Filter
+document.getElementById('dateFilter')?.addEventListener('change', function() {
+    filterActivities(this.value);
+});
     
     // Tambah aktivitas baru
     function addActivity() {
@@ -530,13 +601,21 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Load data aktivitas
     function loadActivities() {
-        database.ref(`activities/${currentUser.uid}`).on('value', snapshot => {
-            activities = [];
-            snapshot.forEach(childSnapshot => {
-                activities.push(childSnapshot.val());
+        // Ubah query untuk mengambil semua data tanpa filter tanggal
+        database.ref(`activities/${currentUser.uid}`)
+            .orderByChild('timestamp') // Urutkan berdasarkan timestamp
+            .once('value')
+            .then(snapshot => {
+                activities = [];
+                snapshot.forEach(childSnapshot => {
+                    activities.push(childSnapshot.val());
+                });
+                renderActivities();
+            })
+            .catch(error => {
+                console.error("Gagal memuat data:", error);
+                showToast('Error', 'Gagal memuat data aktivitas', true);
             });
-            renderActivities();
-        });
     }
     
     // Event listeners

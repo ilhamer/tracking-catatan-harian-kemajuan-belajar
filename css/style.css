@@ -120,3 +120,39 @@ body {
         font-size: 14px;
     }
 }
+
+/* Dropdown filter */
+#dateFilter {
+    width: 120px;
+    display: inline-block;
+    margin-right: 10px;
+}
+
+/* Tombol sejajar dengan dropdown */
+.card-header > div {
+    display: flex;
+    align-items: center;
+}
+
+/* Style untuk filter dropdown */
+#dateFilter {
+    width: 150px;
+    display: inline-block;
+}
+
+/* Style untuk badge hari ini */
+.badge {
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+/* Style untuk tabel */
+.table td {
+    vertical-align: middle;
+}
+
+.activity-notes {
+    max-width: 200px;
+    white-space: normal;
+    word-wrap: break-word;
+}
