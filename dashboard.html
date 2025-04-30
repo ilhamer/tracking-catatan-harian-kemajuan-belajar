@@ -1,115 +1,250 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Belajar Tracker - Dashboard</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="css/style.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Belajar Tracker - Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.css">
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-    <div class="container">
-      <a class="navbar-brand" href="#">Belajar Tracker</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ms-auto">
-          <li class="nav-item">
-            <a class="nav-link" href="#" id="logoutBtn">Logout</a>
-          </li>
-        </ul>
-      </div>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-book-open me-2"></i> Belajar Tracker
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user-circle me-1"></i>
+                            <span id="userName">Pengguna</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#" id="editProfileBtn"><i class="fas fa-user-edit me-2"></i>Edit Profil</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#" id="logoutBtn"><i class="fas fa-sign-out-alt me-2"></i>Keluar</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-4">
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card stat-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-subtitle mb-2 text-muted">Hari Ini</h6>
+                                <h2 class="mb-0" id="todayMinutes">0</h2>
+                                <small class="text-muted">menit belajar</small>
+                            </div>
+                            <div class="icon-circle bg-primary">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card stat-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-subtitle mb-2 text-muted">Minggu Ini</h6>
+                                <h2 class="mb-0" id="weekMinutes">0</h2>
+                                <small class="text-muted">menit belajar</small>
+                            </div>
+                            <div class="icon-circle bg-success">
+                                <i class="fas fa-calendar-week"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Progres Belajar</h5>
+                        <div>
+                            <select class="form-select form-select-sm" id="timeRangeSelect" style="width: auto; display: inline-block;">
+                                <option value="week">Minggu Ini</option>
+                                <option value="month">Bulan Ini</option>
+                                <option value="year">Tahun Ini</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="progressChart" height="250"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Distribusi Mata Pelajaran</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="subjectChart" height="250"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Catatan Belajar Hari Ini</h5>
+                        <button class="btn btn-primary btn-sm" id="addActivityBtn">
+                            <i class="fas fa-plus me-1"></i> Tambah
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="activitiesTable">
+                                <thead>
+                                    <tr>
+                                        <th>Mata Pelajaran</th>
+                                        <th>Topik</th>
+                                        <th>Durasi (menit)</th>
+                                        <th>Catatan</th>
+                                        <th>Waktu</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="activitiesBody">
+                                    <!-- Data akan diisi oleh JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-  </nav>
 
-  <div class="container mt-4">
-    <div class="row">
-      <div class="col-md-4">
-        <div class="card mb-4">
-          <div class="card-header bg-success text-white">
-            <h5 class="mb-0">Tambah Kegiatan Belajar</h5>
-          </div>
-          <div class="card-body">
-            <form id="activityForm">
-              <div class="mb-3">
-                <label for="activityName" class="form-label">Nama Kegiatan</label>
-                <input type="text" class="form-control" id="activityName" required>
-              </div>
-              <div class="mb-3">
-                <label for="activityDuration" class="form-label">Durasi (jam)</label>
-                <input type="number" step="0.1" class="form-control" id="activityDuration" required>
-              </div>
-              <div class="mb-3">
-                <label for="activityDate" class="form-label">Tanggal</label>
-                <input type="date" class="form-control" id="activityDate" required>
-              </div>
-              <button type="submit" class="btn btn-primary w-100">Simpan</button>
-            </form>
-          </div>
+    <!-- Modal Tambah Aktivitas -->
+    <div class="modal fade" id="activityModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitle">Tambah Aktivitas Belajar</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="activityForm">
+                        <input type="hidden" id="activityId">
+                        <div class="mb-3">
+                            <label for="subject" class="form-label">Mata Pelajaran</label>
+                            <select class="form-select" id="subject" required>
+                                <option value="" selected disabled>Pilih mata pelajaran</option>
+                                <option value="Matematika">Matematika</option>
+                                <option value="Fisika">Fisika</option>
+                                <option value="Kimia">Kimia</option>
+                                <option value="Biologi">Biologi</option>
+                                <option value="Bahasa Indonesia">Bahasa Indonesia</option>
+                                <option value="Bahasa Inggris">Bahasa Inggris</option>
+                                <option value="Sejarah">Sejarah</option>
+                                <option value="Geografi">Geografi</option>
+                                <option value="Ekonomi">Ekonomi</option>
+                                <option value="Sosiologi">Sosiologi</option>
+                                <option value="Lainnya">Lainnya</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="topic" class="form-label">Topik</label>
+                            <input type="text" class="form-control" id="topic" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="duration" class="form-label">Durasi (menit)</label>
+                            <input type="number" class="form-control" id="duration" min="1" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="notes" class="form-label">Catatan</label>
+                            <textarea class="form-control" id="notes" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-primary" id="saveActivityBtn">Simpan</button>
+                </div>
+            </div>
         </div>
+    </div>
 
-        <div class="card">
-          <div class="card-header bg-info text-white">
-            <h5 class="mb-0">Statistik Hari Ini</h5>
-          </div>
-          <div class="card-body">
-            <div class="text-center">
-              <h3 id="todayTotal">0</h3>
-              <p class="text-muted">Jam Belajar Hari Ini</p>
+    <!-- Modal Edit Profil -->
+    <div class="modal fade" id="profileModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Profil</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="profileForm">
+                        <div class="mb-3">
+                            <label for="editName" class="form-label">Nama Lengkap</label>
+                            <input type="text" class="form-control" id="editName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editEmail" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="editEmail" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="currentPassword" class="form-label">Password Saat Ini</label>
+                            <input type="password" class="form-control" id="currentPassword">
+                            <small class="text-muted">Kosongkan jika tidak ingin mengubah password</small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="newPassword" class="form-label">Password Baru</label>
+                            <input type="password" class="form-control" id="newPassword">
+                        </div>
+                        <div class="mb-3">
+                            <label for="confirmPassword" class="form-label">Konfirmasi Password Baru</label>
+                            <input type="password" class="form-control" id="confirmPassword">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-primary" id="saveProfileBtn">Simpan Perubahan</button>
+                </div>
             </div>
-            <hr>
-            <div id="todayActivities">
-              <p class="text-muted text-center">Belum ada kegiatan hari ini</p>
-            </div>
-          </div>
         </div>
+    </div>
+
+    <!-- Toast Notification -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1100">
+    <div id="authToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header">
+        <strong class="me-auto" id="toastTitle">Notifikasi</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
       </div>
-
-      <div class="col-md-8">
-        <div class="card mb-4">
-          <div class="card-header bg-primary text-white">
-            <h5 class="mb-0">Progress Belajar</h5>
-          </div>
-          <div class="card-body">
-            <canvas id="progressChart"></canvas>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-header bg-warning text-dark">
-            <h5 class="mb-0">Riwayat Kegiatan</h5>
-          </div>
-          <div class="card-body">
-            <div class="table-responsive">
-              <table class="table table-striped">
-                <thead>
-                  <tr>
-                    <th>Tanggal</th>
-                    <th>Kegiatan</th>
-                    <th>Durasi (jam)</th>
-                    <th>Aksi</th>
-                  </tr>
-                </thead>
-                <tbody id="activityTable">
-                  <!-- Data akan diisi oleh JavaScript -->
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
+      <div class="toast-body" id="toastMessage">
+        Pesan notifikasi akan muncul di sini
       </div>
     </div>
   </div>
 
-  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
-  <script src="js/firebase.js"></script>
-  <script src="js/auth.js"></script>
-  <script src="js/dashboard.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/dashboard.js"></script>
 </body>
 </html>
