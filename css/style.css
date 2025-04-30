@@ -105,11 +105,11 @@ body {
 }
 
 /* Tambahkan di css/style.css */
+/* Tambahkan di style.css */
 .table td:nth-child(4) {
-    max-width: 200px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    white-space: normal;
+    word-wrap: break-word;
+    max-width: 300px; /* Sesuaikan sesuai kebutuhan */
 }
 
 /* Untuk tampilan mobile */
