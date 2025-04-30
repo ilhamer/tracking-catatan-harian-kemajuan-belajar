@@ -203,6 +203,21 @@ function renderFilteredActivities(filteredActivities) {
         `;
         activitiesBody.appendChild(row);
     });
+
+    // Pasang event listeners setelah render selesai
+    setTimeout(() => {
+        document.querySelectorAll('.edit-activity').forEach(btn => {
+            btn.addEventListener('click', function() {
+                editActivity(this.dataset.id);
+            });
+        });
+        
+        document.querySelectorAll('.delete-activity').forEach(btn => {
+            btn.addEventListener('click', function() {
+                deleteActivity(this.dataset.id);
+            });
+        });
+    }, 50);
 }
 
 // 3. Event Listener untuk Dropdown Filter
@@ -601,20 +616,31 @@ document.getElementById('dateFilter')?.addEventListener('change', function() {
     
     // Load data aktivitas
     function loadActivities() {
-        // Ubah query untuk mengambil semua data tanpa filter tanggal
-        database.ref(`activities/${currentUser.uid}`)
+        // 1. Hapus listener sebelumnya jika ada
+        const activitiesRef = database.ref(`activities/${currentUser.uid}`);
+        activitiesRef.off(); // Membersihkan listener lama
+        
+        // 2. Pasang listener baru untuk update realtime
+        activitiesRef
             .orderByChild('timestamp') // Urutkan berdasarkan timestamp
-            .once('value')
-            .then(snapshot => {
+            .on('value', (snapshot) => {
+                // 3. Reset array activities
                 activities = [];
+                
+                // 4. Proses setiap data dari Firebase
                 snapshot.forEach(childSnapshot => {
-                    activities.push(childSnapshot.val());
+                    activities.push({
+                        id: childSnapshot.key, // Simpan ID dokumen
+                        ...childSnapshot.val() // Simpan semua data lainnya
+                    });
                 });
+                
+                // 5. Render ulang tabel
                 renderActivities();
-            })
-            .catch(error => {
-                console.error("Gagal memuat data:", error);
-                showToast('Error', 'Gagal memuat data aktivitas', true);
+            }, (error) => {
+                // 6. Handle error
+                console.error("Error realtime listener:", error);
+                showToast('Error', 'Gagal memuat data realtime', true);
             });
     }
     
