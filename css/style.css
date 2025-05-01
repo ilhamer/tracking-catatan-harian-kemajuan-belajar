@@ -156,3 +156,95 @@ body {
     white-space: normal;
     word-wrap: break-word;
 }
+
+/* Timer Styles */
+.timer-card {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  }
+  
+  .timer-display {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    margin: 0 auto;
+  }
+  
+  .timer-circle {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+  
+  .timer-svg {
+    transform: rotate(-90deg);
+    width: 100%;
+    height: 100%;
+  }
+  
+  .timer-bg {
+    fill: none;
+    stroke: #f0f0f0;
+    stroke-width: 8;
+  }
+  
+  .timer-progress {
+    fill: none;
+    stroke: #667eea;
+    stroke-width: 8;
+    stroke-linecap: round;
+    stroke-dasharray: 283;
+    stroke-dashoffset: 283;
+    transition: stroke-dashoffset 1s linear;
+  }
+  
+  .timer-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #333;
+  }
+  
+  .timer-controls .btn {
+    width: 100px;
+  }
+  
+  .timer-presets {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .timer-presets .btn {
+    flex: 1;
+    min-width: 120px;
+  }
+  
+  /* Alarm Animation */
+  @keyframes alarmPulse {
+    0% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.7); }
+    70% { box-shadow: 0 0 0 15px rgba(255, 59, 48, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0); }
+  }
+  
+  .alarm-active {
+    animation: alarmPulse 1.5s infinite;
+    border: 2px solid #ff3b30;
+  }
+
+  /* Fallback alert style */
+.alert-warning {
+    z-index: 1100;
+    animation: slideIn 0.5s ease-out;
+  }
+  
+  @keyframes slideIn {
+    from { transform: translate(-50%, -100%); opacity: 0; }
+    to { transform: translate(-50%, 0); opacity: 1; }
+  }
+  
