@@ -96,27 +96,27 @@ document.addEventListener('DOMContentLoaded', function () {
         resetBtn.addEventListener('click', () => {
             clearInterval(timer);
             timerRunning = false;
-            
+
             // 1. Kembalikan ke waktu awal (bukan default 25m)
             timeLeft = initialTimeLeft; // ◀◀◀ PERUBAHAN PENTING
-            
+
             // 2. Update tampilan timer
             updateTimerDisplay();
-            
+
             // 3. Reset state tombol
             startBtn.disabled = false;
             pauseBtn.disabled = true;
             resetBtn.disabled = true;
-            
+
             // 4. Sembunyikan pesan durasi
             document.getElementById('timerCompletionMessage').classList.add('d-none');
             document.getElementById('timerCompletionMessage').classList.remove('show');
-            
+
             // 5. Hentikan alarm visual & suara
             document.querySelector('.timer-display').classList.remove('alarm-active');
             timerEndSound.pause();
             timerEndSound.currentTime = 0;
-            
+
             // 6. (Opsional) Kosongkan input custom jika ada
             document.getElementById('customMinutes').value = '';
         });
@@ -161,18 +161,18 @@ document.addEventListener('DOMContentLoaded', function () {
     function timerComplete() {
         clearInterval(timer);
         timerRunning = false;
-    
+
         // ✅ Hitung durasi berdasarkan initialTimeLeft (support custom time)
         const totalSecondsUsed = initialTimeLeft - timeLeft;
         const minutesUsed = Math.max(1, Math.ceil(totalSecondsUsed / 60)); // Minimal 1 menit
-    
+
         // Tampilkan pesan durasi
         const messageElement = document.getElementById('timerCompletionMessage');
         const durationDisplay = document.getElementById('durationDisplay');
         durationDisplay.textContent = minutesUsed; // ✅ Gunakan minutesUsed
         messageElement.classList.remove('d-none');
         messageElement.classList.add('show');
-    
+
         // Alarm sound logic (unchanged)
         timerEndSound.volume = 1.0;
         timerEndSound.play().catch(e => {
@@ -183,11 +183,11 @@ document.addEventListener('DOMContentLoaded', function () {
             document.body.appendChild(alert);
             setTimeout(() => alert.remove(), 3000);
         });
-    
+
         // Visual alarm
         const timerDisplayElement = document.querySelector('.timer-display');
         timerDisplayElement.classList.add('alarm-active');
-    
+
         // Auto-open modal dengan durasi yang konsisten
         setTimeout(() => {
             activityModal.show();
@@ -525,18 +525,14 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         // Handle custom subject
+        // Handle custom subject
         if (subject === "Lainnya") {
-            subject = document.getElementById('customSubject').value.trim();
-            if (!subject) {
-                showToast('Error', 'Harap isi nama pelajaran');
-                return;
-            }
+            subject = document.getElementById('customSubject').value.trim() || "Lainnya"; // ◀ Tetap gunakan "Lainnya"
         }
 
         const activityData = {
             id: activityId,
             subject,
-            subject: subject,
             topic,
             duration,
             notes,
@@ -546,6 +542,13 @@ document.addEventListener('DOMContentLoaded', function () {
         database.ref(`activities/${currentUser.uid}/${activityId}`).set(activityData)
             .then(() => {
                 showToast('Sukses', 'Aktivitas berhasil disimpan');
+                // ▼▼▼ RESET FORM SETELAH SIMPAN ▼▼▼
+                activityForm.reset(); // Reset semua field form
+                document.getElementById('customSubjectContainer').style.display = 'none'; // Sembunyikan custom subject
+                document.getElementById('subject').selectedIndex = 0; // Reset dropdown ke default
+                // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+
+
                 activityModal.hide();
             })
             .catch(error => {
