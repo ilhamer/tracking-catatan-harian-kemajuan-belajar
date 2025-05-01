@@ -28,6 +28,7 @@ document.addEventListener('DOMContentLoaded', function () {
     let timeLeft = 1500; // 25 minutes in seconds
     let timerRunning = false;
     let timerEndSound;
+    let initialTimeLeft = 1500; // Default 25 menit (dalam detik)
 
     // DOM Elements
     const timerDisplay = document.querySelector('.timer-text');
@@ -95,19 +96,37 @@ document.addEventListener('DOMContentLoaded', function () {
         resetBtn.addEventListener('click', () => {
             clearInterval(timer);
             timerRunning = false;
-            timeLeft = parseInt(timerPresets[0].dataset.minutes) * 60; // Reset to default
+            
+            // 1. Kembalikan ke waktu awal (bukan default 25m)
+            timeLeft = initialTimeLeft; // ◀◀◀ PERUBAHAN PENTING
+            
+            // 2. Update tampilan timer
             updateTimerDisplay();
+            
+            // 3. Reset state tombol
             startBtn.disabled = false;
             pauseBtn.disabled = true;
             resetBtn.disabled = true;
+            
+            // 4. Sembunyikan pesan durasi
+            document.getElementById('timerCompletionMessage').classList.add('d-none');
+            document.getElementById('timerCompletionMessage').classList.remove('show');
+            
+            // 5. Hentikan alarm visual & suara
             document.querySelector('.timer-display').classList.remove('alarm-active');
+            timerEndSound.pause();
+            timerEndSound.currentTime = 0;
+            
+            // 6. (Opsional) Kosongkan input custom jika ada
+            document.getElementById('customMinutes').value = '';
         });
-
         // Preset Buttons
         timerPresets.forEach(preset => {
             preset.addEventListener('click', () => {
                 timeLeft = parseInt(preset.dataset.minutes) * 60;
                 updateTimerDisplay();
+                // Sembunyikan pesan saat memilih preset baru
+                document.getElementById('timerCompletionMessage').classList.add('d-none');
                 if (timerRunning) {
                     clearInterval(timer);
                     timerRunning = false;
@@ -121,8 +140,13 @@ document.addEventListener('DOMContentLoaded', function () {
         setCustomTimeBtn.addEventListener('click', () => {
             const minutes = parseInt(customMinutesInput.value);
             if (minutes && minutes > 0 && minutes <= 240) {
-                timeLeft = minutes * 60;
+                initialTimeLeft = minutes * 60; // ✅ Simpan waktu awal custom
+                timeLeft = initialTimeLeft; // Update timeLeft
                 updateTimerDisplay();
+
+                // Sembunyikan pesan durasi jika ada
+                document.getElementById('timerCompletionMessage').classList.add('d-none');
+
                 if (timerRunning) {
                     clearInterval(timer);
                     timerRunning = false;
@@ -137,32 +161,37 @@ document.addEventListener('DOMContentLoaded', function () {
     function timerComplete() {
         clearInterval(timer);
         timerRunning = false;
-
-        // Play alarm sound
+    
+        // ✅ Hitung durasi berdasarkan initialTimeLeft (support custom time)
+        const totalSecondsUsed = initialTimeLeft - timeLeft;
+        const minutesUsed = Math.max(1, Math.ceil(totalSecondsUsed / 60)); // Minimal 1 menit
+    
+        // Tampilkan pesan durasi
+        const messageElement = document.getElementById('timerCompletionMessage');
+        const durationDisplay = document.getElementById('durationDisplay');
+        durationDisplay.textContent = minutesUsed; // ✅ Gunakan minutesUsed
+        messageElement.classList.remove('d-none');
+        messageElement.classList.add('show');
+    
+        // Alarm sound logic (unchanged)
         timerEndSound.volume = 1.0;
         timerEndSound.play().catch(e => {
             console.error("Alarm gagal berbunyi:", e);
-            // Fallback visual
             const alert = document.createElement('div');
             alert.className = 'alert alert-warning position-fixed top-0 start-50 translate-middle-x mt-3';
             alert.textContent = 'Waktu belajar telah habis!';
             document.body.appendChild(alert);
             setTimeout(() => alert.remove(), 3000);
         });
-
-        // Visual alarm effect
+    
+        // Visual alarm
         const timerDisplayElement = document.querySelector('.timer-display');
         timerDisplayElement.classList.add('alarm-active');
-
-        // Auto-open activity modal with prefilled data
+    
+        // Auto-open modal dengan durasi yang konsisten
         setTimeout(() => {
             activityModal.show();
-
-            // ▼▼▼ PERUBAHAN PENTING DI BAWAH INI ▼▼▼
-            const actualMinutes = Math.max(1, Math.floor(timeLeft / 60)); // Pastikan minimal 1 menit
-            document.getElementById('duration').value = actualMinutes;
-            // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
-
+            document.getElementById('duration').value = minutesUsed; // ✅ Gunakan nilai yang sama
             document.getElementById('subject').focus();
         }, 1000);
     }
@@ -642,17 +671,17 @@ document.addEventListener('DOMContentLoaded', function () {
     // Update chart distribusi mata pelajaran
     function updateSubjectChart() {
         const subjectMap = {};
-    
+
         activities.forEach(activity => {
             if (!subjectMap[activity.subject]) {
                 subjectMap[activity.subject] = 0;
             }
             subjectMap[activity.subject] += parseInt(activity.duration);
         });
-    
+
         const labels = Object.keys(subjectMap);
         const data = Object.values(subjectMap);
-    
+
         // Warna yang lebih beragam dan menarik
         const backgroundColors = [
             'rgba(255, 99, 132, 0.7)',    // Merah
@@ -668,12 +697,12 @@ document.addEventListener('DOMContentLoaded', function () {
             'rgba(253, 126, 20, 0.7)',     // Oranye tua
             'rgba(111, 66, 193, 0.7)'      // Ungu tua
         ];
-    
+
         // Jika ada lebih banyak mata pelajaran daripada warna, kita akan mengulang warna
-        const finalColors = labels.map((_, index) => 
+        const finalColors = labels.map((_, index) =>
             backgroundColors[index % backgroundColors.length]
         );
-    
+
         if (subjectChart) {
             subjectChart.data.labels = labels;
             subjectChart.data.datasets[0].data = data;

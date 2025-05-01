@@ -277,3 +277,19 @@ body {
     margin-right: 5px;
     display: inline-block;
 }
+
+.completion-message {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #e9ecef;
+    border-radius: 5px;
+    text-align: center;
+    font-size: 1.1rem;
+    color: #495057;
+    transition: all 0.3s ease;
+  }
+  
+  .completion-message.show {
+    display: block !important;
+    opacity: 1;
+  }
