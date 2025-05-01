@@ -137,7 +137,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function timerComplete() {
         clearInterval(timer);
         timerRunning = false;
-    
+
         // Play alarm sound
         timerEndSound.volume = 1.0;
         timerEndSound.play().catch(e => {
@@ -149,20 +149,20 @@ document.addEventListener('DOMContentLoaded', function () {
             document.body.appendChild(alert);
             setTimeout(() => alert.remove(), 3000);
         });
-    
+
         // Visual alarm effect
         const timerDisplayElement = document.querySelector('.timer-display');
         timerDisplayElement.classList.add('alarm-active');
-    
+
         // Auto-open activity modal with prefilled data
         setTimeout(() => {
             activityModal.show();
-    
+
             // ▼▼▼ PERUBAHAN PENTING DI BAWAH INI ▼▼▼
             const actualMinutes = Math.max(1, Math.floor(timeLeft / 60)); // Pastikan minimal 1 menit
             document.getElementById('duration').value = actualMinutes;
             // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
-            
+
             document.getElementById('subject').focus();
         }, 1000);
     }
@@ -428,22 +428,86 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    // Letakkan di bagian atas file (setelah deklarasi firebase)
+    const subjects = [
+        "Matematika",
+        "Fisika",
+        "Kimia",
+        "Bahasa Indonesia",
+        "Bahasa Inggris",
+        "Bahasa Jepang",
+        "Bahasa Korea",
+        "Bahasa Jerman",
+        "Pemrograman Web",
+        "Struktur Data",
+        "Basis Data"
+    ];
+
+    function initSubjectDropdown() {
+        const select = document.getElementById('subject');
+
+        // Kosongkan dropdown
+        select.innerHTML = '';
+
+        // Tambahkan opsi default
+        const defaultOption = document.createElement('option');
+        defaultOption.value = "";
+        defaultOption.textContent = "Pilih mata pelajaran";
+        defaultOption.selected = true;
+        defaultOption.disabled = true;
+        select.appendChild(defaultOption);
+
+        // Isi dropdown dari array subjects
+        subjects.forEach(subject => {
+            const option = document.createElement('option');
+            option.value = subject;
+            option.textContent = subject;
+            select.appendChild(option);
+        });
+
+        // Tambahkan opsi "Lainnya"
+        const otherOption = document.createElement('option');
+        otherOption.value = "Lainnya";
+        otherOption.textContent = "Lainnya";
+        select.appendChild(otherOption);
+
+        // Tambahkan di initSubjectDropdown() atau DOMContentLoaded
+        document.getElementById('subject').addEventListener('change', function () {
+            const customContainer = document.getElementById('customSubjectContainer');
+            customContainer.style.display = this.value === "Lainnya" ? 'block' : 'none';
+        });
+    }
+
+    initSubjectDropdown();
+
     // Simpan aktivitas
     function saveActivity() {
         const activityId = activityIdInput.value || Date.now().toString();
-        const subject = document.getElementById('subject').value;
+        // const subject = document.getElementById('subject').value;
         const topic = document.getElementById('topic').value;
         const duration = document.getElementById('duration').value;
         const notes = document.getElementById('notes').value;
+        const subjectSelect = document.getElementById('subject');
+        let subject = subjectSelect.value;
 
         if (!subject || !topic || !duration) {
             showToast('Error', 'Harap isi semua field yang wajib diisi');
             return;
         }
 
+        // Handle custom subject
+        if (subject === "Lainnya") {
+            subject = document.getElementById('customSubject').value.trim();
+            if (!subject) {
+                showToast('Error', 'Harap isi nama pelajaran');
+                return;
+            }
+        }
+
         const activityData = {
             id: activityId,
             subject,
+            subject: subject,
             topic,
             duration,
             notes,
@@ -578,33 +642,42 @@ document.addEventListener('DOMContentLoaded', function () {
     // Update chart distribusi mata pelajaran
     function updateSubjectChart() {
         const subjectMap = {};
-
+    
         activities.forEach(activity => {
             if (!subjectMap[activity.subject]) {
                 subjectMap[activity.subject] = 0;
             }
             subjectMap[activity.subject] += parseInt(activity.duration);
         });
-
+    
         const labels = Object.keys(subjectMap);
         const data = Object.values(subjectMap);
-
+    
+        // Warna yang lebih beragam dan menarik
         const backgroundColors = [
-            'rgba(102, 126, 234, 0.7)',
-            'rgba(72, 187, 120, 0.7)',
-            'rgba(237, 137, 54, 0.7)',
-            'rgba(233, 75, 60, 0.7)',
-            'rgba(155, 89, 182, 0.7)',
-            'rgba(74, 172, 216, 0.7)',
-            'rgba(241, 196, 15, 0.7)',
-            'rgba(39, 174, 96, 0.7)',
-            'rgba(211, 84, 0, 0.7)',
-            'rgba(142, 68, 173, 0.7)'
+            'rgba(255, 99, 132, 0.7)',    // Merah
+            'rgba(54, 162, 235, 0.7)',     // Biru
+            'rgba(255, 206, 86, 0.7)',     // Kuning
+            'rgba(75, 192, 192, 0.7)',     // Hijau
+            'rgba(153, 102, 255, 0.7)',   // Ungu
+            'rgba(255, 159, 64, 0.7)',     // Oranye
+            'rgba(199, 199, 199, 0.7)',    // Abu-abu
+            'rgba(83, 102, 255, 0.7)',     // Biru tua
+            'rgba(40, 167, 69, 0.7)',      // Hijau tua
+            'rgba(220, 53, 69, 0.7)',      // Merah tua
+            'rgba(253, 126, 20, 0.7)',     // Oranye tua
+            'rgba(111, 66, 193, 0.7)'      // Ungu tua
         ];
-
+    
+        // Jika ada lebih banyak mata pelajaran daripada warna, kita akan mengulang warna
+        const finalColors = labels.map((_, index) => 
+            backgroundColors[index % backgroundColors.length]
+        );
+    
         if (subjectChart) {
             subjectChart.data.labels = labels;
             subjectChart.data.datasets[0].data = data;
+            subjectChart.data.datasets[0].backgroundColor = finalColors;
             subjectChart.update();
         } else {
             const ctx = document.getElementById('subjectChart').getContext('2d');
@@ -614,8 +687,9 @@ document.addEventListener('DOMContentLoaded', function () {
                     labels: labels,
                     datasets: [{
                         data: data,
-                        backgroundColor: backgroundColors.slice(0, labels.length),
-                        borderWidth: 1
+                        backgroundColor: finalColors,
+                        borderWidth: 1,
+                        borderColor: '#fff' // Border putih untuk kontras
                     }]
                 },
                 options: {
@@ -623,6 +697,10 @@ document.addEventListener('DOMContentLoaded', function () {
                     plugins: {
                         legend: {
                             position: 'bottom',
+                            labels: {
+                                usePointStyle: true, // Gunakan titik sebagai penanda
+                                padding: 20
+                            }
                         },
                         tooltip: {
                             callbacks: {
@@ -631,7 +709,8 @@ document.addEventListener('DOMContentLoaded', function () {
                                 }
                             }
                         }
-                    }
+                    },
+                    cutout: '60%' // Membuat donat lebih tipis
                 }
             });
         }
