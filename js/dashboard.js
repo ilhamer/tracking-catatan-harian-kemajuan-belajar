@@ -469,7 +469,8 @@ document.addEventListener('DOMContentLoaded', function () {
         "Bahasa Jerman",
         "Pemrograman Web",
         "Struktur Data",
-        "Basis Data"
+        "Basis Data",
+        "Baca al Qur'an"
     ];
 
     function initSubjectDropdown() {
